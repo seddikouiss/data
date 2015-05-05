@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://pony-sdk.googlecode.com/files/project_schema-1.2.xsd">
+	<domain name="User" package="com.smarttrade.webappsdk.training">
+		<service>       
+			<method name="findUser">
+				<parameter name="query" class="com.ponysdk.core.query.Query" />
+				<return value="com.smarttrade.webappsdk.core.shared.query.SearchResult&lt;com.smarttrade.messages.structures.User&gt;" />
+			</method>
+			<method name="createUser">
+				<parameter name="user" class="com.smarttrade.messages.structures.User" />
+				<return />
+			</method>
+			<method name="findAll">
+				<return value="java.util.List&lt;User&gt;" />
+			</method>
+		</service>
+	</domain>
+</root>

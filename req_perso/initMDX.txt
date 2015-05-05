@@ -1,0 +1,4 @@
+select
+  {[Measures].[total_odrer_price], [Measures].[Units Orders]} on columns,
+  {([Counter].[All Counters],[Time].[All Times], [Product].[All Products])} ON rows
+from CubeR5

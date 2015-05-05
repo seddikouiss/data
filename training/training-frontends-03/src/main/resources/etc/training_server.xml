@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+    <context:annotation-config />
+
+    <bean class="com.smarttrade.webappsdk.core.server.spring.SpringProxyBuilder" />
+
+    <bean name="sessionManager" class="com.smarttrade.webappsdk.core.server.session.SessionManager" />
+
+    <bean name="messagePusher" class="com.smarttrade.webappsdk.core.server.streaming.StackingMessagePusher">
+        <property name="smoothingDelay" value="140" />
+    </bean>
+
+    <bean name="messageQueue" class="com.smarttrade.webappsdk.core.server.streaming.UserMessageQueue">
+        <property name="sessionManager" ref="sessionManager" />
+    </bean>
+
+    <bean name="messageEnricher" class="com.smarttrade.webappsdk.core.server.enricher.DefaultMessageEnricher">
+        <property name="sessionManager" ref="sessionManager" />
+    </bean>
+
+    <bean name="messageLogger" class="com.smarttrade.webappsdk.core.server.logging.DefaultMessageLogger" />
+
+    <bean name="connector" class="com.smarttrade.webappsdk.training.server.BasicConnector">
+        <property name="uri" value="tcp://localhost:9580" />
+        <property name="chainFactory" ref="messageIncomingChain" />
+    </bean>
+
+    <bean name="stServiceSender" class="com.smarttrade.webappsdk.core.server.DefaultSenderService">
+        <property name="sessionManager" ref="sessionManager" />
+        <property name="chainFactory" ref="messageOutgoingChain" />
+    </bean>
+
+    <bean name="messageIncomingChain" class="com.smarttrade.webappsdk.core.server.filter.impl.DiscoveringMessageFilterChainFactory">
+        <property name="startBy">
+            <list>
+                <ref bean="messageLogger" />
+                <ref bean="sessionManager" />
+            </list>
+        </property>
+        <property name="endBy">
+            <list>
+                <ref bean="messagePusher" />
+            </list>
+        </property>
+        <property name="excludes">
+            <list>
+                <ref bean="connector" />
+            </list>
+        </property>
+        <property name="autoDiscovery" value="true" />
+    </bean>
+
+    <bean name="messageOutgoingChain" class="com.smarttrade.webappsdk.core.server.filter.impl.DiscoveringMessageFilterChainFactory">
+        <property name="startBy">
+            <list>
+                <ref bean="sessionManager" />
+                <ref bean="messageEnricher" />
+            </list>
+        </property>
+        <property name="endBy">
+            <list>
+                <ref bean="messageLogger" />
+                <ref bean="connector" />
+            </list>
+        </property>
+        <property name="excludes">
+            <list>
+                <ref bean="messagePusher" />
+            </list>
+        </property>
+        <property name="autoDiscovery" value="true" />
+    </bean>
+
+    <!-- Cache -->
+    <bean name="connectionCache" class="com.smarttrade.webappsdk.services.connection.DefaultConnectionCache">
+        <property name="sessionManager" ref="sessionManager" />
+    </bean>
+    <bean name="securityCache" class="com.smarttrade.webappsdk.services.cache.SecurityCache" />
+    <bean name="defaultCacheService" class="com.smarttrade.webappsdk.services.cache.DefaultCacheService">
+        <property name="securityCache" ref="securityCache" />
+    </bean>
+
+    <!-- App definition -->
+    <bean name="training" class="com.smarttrade.webappsdk.core.main.Application">
+        <property name="applicationContextName" value="training" />
+        <property name="applicationName" value="training webtrading" />
+        <property name="clientConfigFile" value="training_client.xml" />
+    </bean>
+
+    <bean name="jettyServer" class="com.smarttrade.webappsdk.core.main.JettyServer">
+        <property name="port" value="8081" />
+    </bean>
+
+    <!-- Lifecycle -->
+    <bean name="st:lifeCycleManager" class="com.smarttrade.system.container.ContainerLifeCycleManager">
+        <property name="startList">
+            <list>
+                <ref bean="jettyServer" />
+                <ref bean="connector" />
+            </list>
+        </property>
+        <property name="stopList">
+            <list>
+                <ref bean="jettyServer" />
+            </list>
+        </property>
+    </bean>
+</beans>

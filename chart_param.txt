@@ -1,0 +1,8 @@
+($F{count(Code_objet)}!=null)?($F{count(Code_objet)}):new Integer(0)
+($F{diplomeType}!=null)?$F{diplomeType}:""
+
+select distinct O.diplomeType ,count(A.Id_personne) from a_pour_contributeur A, formation O  where O.Code_objet = A.Code_objet group by O.diplomeType
+
+select diplomeType,count(Code_objet)
+from formation
+group by diplomeType

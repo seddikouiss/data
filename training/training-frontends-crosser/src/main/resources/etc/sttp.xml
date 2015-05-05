@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <bean class="com.smarttrade.messaging.stamp.TcpSTAMPServerAdapter">
+        <property name="host" value="0.0.0.0" />
+        <property name="port" value="9580" />
+    </bean>
+
+    <bean name="instrumentProvider" class="com.smarttrade.ibus.instruments.InMemoryInstrumentProvider">
+        <constructor-arg>
+            <bean class="com.smarttrade.webappsdk.training.InMemoryInstrumentLoader" />
+        </constructor-arg>
+    </bean>
+
+    <bean name="sttp:lifeCycleManager" class="com.smarttrade.system.container.ContainerLifeCycleManager">
+        <property name="startList">
+            <list>
+                <ref bean="sttp" />
+            </list>
+        </property>
+        <property name="stopList">
+            <list>
+                <ref bean="sttp" />
+            </list>
+        </property>
+    </bean>
+
+</beans>

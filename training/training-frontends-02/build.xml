@@ -1,0 +1,35 @@
+<project basedir="." name="training02" default="generate">
+
+	<property name="project.name" value="training-frontends-02" />
+	<property name="project_specifications" value="${basedir}/src/main/resources/spec" />
+	<property name="generated_application.destdir" value="${basedir}/target/main/java" />
+
+	<taskdef resource="net/sf/ant4eclipse/antlib.xml">
+		<classpath>
+			<pathelement location="libs/ant4eclipse-0.5.2.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef resource="com/ponysdk/generator/ant/antlib.xml">
+		<classpath>
+			<pathelement location="libs/ant-ponysdk-0.2.jar" />
+		</classpath>
+	</taskdef>
+
+	<getEclipseClasspath pathId="project.class.path" projectName="${project.name}" workspace="${basedir}/.." />
+
+	<target name="generate" description="generate">
+		<antcall target="generate_Project_Skeleton" />
+	</target>
+
+	<target name="generate_Project_Skeleton">
+		<mkdir dir="${generated_application.destdir}/" />
+		<echo message="Generating project ${project.name} skeleton from specifications ${project_specifications} ..." />
+		<pony maxmemory="256m" removeoldoutput="true" specdir="${project_specifications}" destdir="${generated_application.destdir}">
+			<produces dir="${generated_application.destdir}" />
+			<classpath>
+				<path refid="project.class.path" />
+			</classpath>
+		</pony>
+	</target>
+
+</project>

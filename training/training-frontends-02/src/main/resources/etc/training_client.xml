@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+	<context:annotation-config />
+
+	<bean name="entryPoint"
+		class="com.smarttrade.webappsdk.training.client.TrainingEntryPoint" />
+
+	<!-- App layout -->
+	<bean name="headerView"
+		class="com.ponysdk.impl.webapplication.header.DefaultHeaderView">
+		<constructor-arg value="Training 02" />
+	</bean>
+	<bean name="headerActivity" class="com.ponysdk.impl.webapplication.header.HeaderActivity">
+		<property name="headerView" ref="headerView" />
+	</bean>
+
+	<bean name="menuView"
+		class="com.ponysdk.impl.webapplication.menu.StackLayoutMenuView" />
+	<bean name="menuActivity" class="com.ponysdk.impl.webapplication.menu.MenuActivity">
+		<property name="menuView" ref="menuView" />
+		<property name="pageProvider" ref="pageProvider" />
+	</bean>
+
+	<bean name="footerView"
+		class="com.ponysdk.impl.webapplication.footer.DefaultFooterView">
+		<constructor-arg value="smartTrade Technologies 2014" />
+	</bean>
+	<bean name="footerActivity" class="com.ponysdk.impl.webapplication.footer.FooterActivity">
+		<property name="footerView" ref="footerView" />
+	</bean>
+
+	<bean name="notificationActivity"
+		class="com.ponysdk.impl.webapplication.notification.NotificationActivity">
+		<property name="notificationView" ref="notificationView" />
+	</bean>
+	<bean name="notificationView"
+		class="com.ponysdk.impl.webapplication.notification.DefaultNotificationView">
+		<property name="notificationTypeRenderer">
+			<bean
+				class="com.ponysdk.impl.webapplication.notification.renderer.PLabelRenderer" />
+		</property>
+		<property name="logTypeRenderer">
+			<bean
+				class="com.ponysdk.impl.webapplication.notification.renderer.PHTMLRenderer" />
+		</property>
+	</bean>
+
+	<bean name="applicationView"
+		class="com.ponysdk.impl.webapplication.application.DefaultApplicationView">
+		<property name="logsHeight" value="50" />
+		<property name="menuWidth" value="250" />
+	</bean>
+	<bean name="applicationActivity"
+		class="com.ponysdk.impl.webapplication.application.ApplicationActivity">
+		<property name="applicationView" ref="applicationView" />
+		<property name="headerActivity" ref="headerActivity" />
+		<property name="menuActivity" ref="menuActivity" />
+		<property name="notificationActivity" ref="notificationActivity" />
+		<property name="footerActivity" ref="footerActivity" />
+		<property name="pageProvider" ref="pageProvider" />
+	</bean>
+
+	<bean name="pageProvider"
+		class="com.ponysdk.impl.webapplication.page.DefaultPageProvider">
+		<property name="pageActivities">
+			<bean class="com.ponysdk.spring.ListLoader">
+				<property name="type"
+					value="com.ponysdk.impl.webapplication.page.PageActivity" />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Page routing -->
+	<bean name="mapper"
+		class="com.ponysdk.impl.webapplication.page.ApplicationActivityMapper">
+		<property name="applicationActivity" ref="applicationActivity" />
+	</bean>
+	<bean name="historyMapper"
+		class="com.ponysdk.impl.webapplication.page.ApplicationPlaceHistoryMapper">
+		<constructor-arg ref="eventBus" />
+		<property name="pageProvider" ref="pageProvider" />
+	</bean>
+
+	<!-- Bean Service -->
+	<bean name="serviceUser" class="com.smarttrade.webappsdk.training.server.UserServiceImpl" />
+	<!-- Pages -->
+	<bean class="com.smarttrade.webappsdk.training.client.page.WelcomePage" />
+	<bean class="com.smarttrade.webappsdk.training.client.page.UserListPage" />
+	<bean class="com.smarttrade.webappsdk.training.client.page.UserFormPage" />
+
+</beans>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="target/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="libs/ponysdk.jar" sourcepath="libs/ponysdk-sources.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="libs/javax.servlet.jar"/>
+	<classpathentry kind="lib" path="libs/webappsdk.jar" sourcepath="libs/webappsdk-sources.jar"/>
+	<classpathentry kind="lib" path="libs/stclient.jar"/>
+	<classpathentry kind="lib" path="C:/Users/souiss/Downloads/pivot4j-core-0.9.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

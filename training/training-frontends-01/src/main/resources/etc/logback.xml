@@ -1,0 +1,13 @@
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+       <target>System.out</target>
+       <encoder>
+          <pattern>[%X{node}] %d{HH:mm:ss.SSS} %-5p [%c{0}] %m%n</pattern>
+       </encoder>
+   </appender>
+
+  <root level="INFO" >
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+</configuration>
