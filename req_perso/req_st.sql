@@ -97,3 +97,13 @@ where 	O_BUY.ORD_VERSION_ID  = T.BUYER_ORDER_ID  	and
 ;
 
 
+use st_base ;
+
+ 
+select count( *) ,O.ORD_VERSION_ID
+from orders O, trade T
+where O.ORD_VERSION_ID = T.BUYER_ORDER_ID or O.ORD_VERSION_ID = T.SELLER_ORDER_ID
+group by O.ORD_VERSION_ID
+;
+
+select count(distinct SELLER_ORDER_ID) from trade ;

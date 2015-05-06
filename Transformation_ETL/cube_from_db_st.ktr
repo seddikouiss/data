@@ -569,6 +569,10 @@
       <crcfield>hashcode</crcfield>
       <fields>
         <key>
+          <name>ID_ORD_BUY</name>
+          <lookup>order</lookup>
+        </key>
+        <key>
           <name>ORDER_STATUS_BUY</name>
           <lookup>status</lookup>
         </key>
@@ -609,6 +613,10 @@
       <crc>N</crc>
       <crcfield>hashcode</crcfield>
       <fields>
+        <key>
+          <name>ID_ORD_SELL</name>
+          <lookup>order</lookup>
+        </key>
         <key>
           <name>ORDER_STATUS_SELL</name>
           <lookup>status</lookup>
