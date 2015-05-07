@@ -304,7 +304,7 @@
            <schema_name/>
            </partitioning>
     <connection>st_base</connection>
-    <sql>select O.ORD_DATE as &#x27;Creation_Date&#x27;, U.USR_ID ,U.USR_NAME as &#x27;User_Name&#x27;, TG.TDG_ID  , TG.TDG_NAME as &#x27;Counterparty_Name&#x27;, O.PRD_NAME as &#x27;Security_Name&#x27;,O.PRD_ID as &#x27;Security_ID&#x27;,O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,O.ORD_ORDER_STATUS,O.ORD_PRICE &#x2a; O.ORD_QUANTITY as &#x27;Contra Amount&#x27;&#xd;&#xa;from orders O join st_user U on O.ORD_OWNER_ID &#x3d; U.USR_ID join  tradegroup TG on TG.TDG_ID &#x3d; U.TDG_ID&#x3b;&#xd;&#xa;</sql>
+    <sql>select 	O.ORD_VERSION_ID,O.ORD_DATE as &#x27;Creation_Date&#x27;, U.USR_ID ,U.USR_NAME as &#x27;User_Name&#x27;,&#xd;&#xa;		TG.TDG_ID  , TG.TDG_NAME as &#x27;Counterparty_Name&#x27;,&#xd;&#xa;		O.PRD_NAME as &#x27;Security_Name&#x27;,O.PRD_ID as &#x27;Security_ID&#x27;,&#xd;&#xa;        O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,&#xd;&#xa;        O.ORD_ORDER_STATUS,O.ORD_PRICE &#x2a; O.ORD_QUANTITY as &#x27;Contra Amount&#x27;,&#xd;&#xa;        count&#x28;T1.TRD_NUM&#x29; &#x2f; 2 as NB_TRADE, ORD_SIDE as &#x27;ORD_TYPE&#x27;&#xd;&#xa;from orders O join st_user U 		on O.ORD_OWNER_ID &#x3d; U.USR_ID &#xd;&#xa;			  join  tradegroup TG 	on TG.TDG_ID &#x3d; U.TDG_ID &#xd;&#xa;              left join Trade T1 	on O.ORD_VERSION_ID &#x3d; T1.BUYER_ORDER_ID &#xd;&#xa;									or  O.ORD_VERSION_ID &#x3d; T1.SELLER_ORDER_ID&#xd;&#xa;group by O.ORD_VERSION_ID&#x3b;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -500,7 +500,7 @@
       <last_update_field/>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>531</xloc>
+      <xloc>530</xloc>
       <yloc>138</yloc>
       <draw>Y</draw>
       </GUI>
@@ -835,10 +835,6 @@
     <return_field>id</return_field>
     <fields>
         <field>
-          <column_name>contrat_amount</column_name>
-          <stream_name>Contra Amount</stream_name>
-        </field>
-        <field>
           <column_name>id_time</column_name>
           <stream_name>id_time</stream_name>
         </field>
@@ -849,6 +845,18 @@
         <field>
           <column_name>id_product</column_name>
           <stream_name>id_product</stream_name>
+        </field>
+        <field>
+          <column_name>contrat_amount</column_name>
+          <stream_name>Contra Amount</stream_name>
+        </field>
+        <field>
+          <column_name>nb_trade</column_name>
+          <stream_name>NB_TRADE</stream_name>
+        </field>
+        <field>
+          <column_name>ord_type</column_name>
+          <stream_name>ORD_TYPE</stream_name>
         </field>
     </fields>
      <cluster_schema/>

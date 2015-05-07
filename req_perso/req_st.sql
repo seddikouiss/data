@@ -1,3 +1,6 @@
+use st_base ;
+
+
 desc orders ;
 select distinct ORD_OWNER_NAME from orders ;
 --
@@ -26,8 +29,6 @@ from orders O join st_user U on O.ORD_OWNER_ID = U.USR_ID join  tradegroup TG on
 select O.ORD_OWNER_ID,O.ORD_OWNER_NAME,count(*) as 'NB_Trade_SELLER'
 from trade T join orders O on T.SELLER_ORDER_ID= O.ORD_ORDER_ID 
 group by O.ORD_ORDER_ID,O.ORD_OWNER_ID,O.ORD_OWNER_NAME;
-
-
 
 
 select MAKER,TAKER from trade ;
@@ -97,7 +98,6 @@ where 	O_BUY.ORD_VERSION_ID  = T.BUYER_ORDER_ID  	and
 ;
 
 
-use st_base ;
 
  
 select count( *) ,O.ORD_VERSION_ID
@@ -107,3 +107,50 @@ group by O.ORD_VERSION_ID
 ;
 
 select count(distinct SELLER_ORDER_ID) from trade ;
+
+
+select 	O.ORD_VERSION_ID,O.ORD_DATE as 'Creation_Date', U.USR_ID ,U.USR_NAME as 'User_Name',
+		TG.TDG_ID  , TG.TDG_NAME as 'Counterparty_Name',
+		O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',
+        O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,
+        O.ORD_ORDER_STATUS,O.ORD_PRICE * O.ORD_QUANTITY as 'Contra Amount',
+        count(T1.TRD_NUM) / 2 as NB_TRADE, ORD_SIDE as 'ORD_TYPE'
+from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
+			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
+              left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+group by O.ORD_VERSION_ID;
+
+select count(*) from trade ;
+
+select O.ORD_DATE as 'Creation_Date', U.USR_ID ,U.USR_NAME as 'User_Name', TG.TDG_ID  , TG.TDG_NAME as 'Counterparty_Name', O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,O.ORD_ORDER_STATUS,O.ORD_PRICE * O.ORD_QUANTITY as 'Contra Amount'
+from orders O join st_user U on O.ORD_OWNER_ID = U.USR_ID join  tradegroup TG on TG.TDG_ID = U.TDG_ID;
+
+
+
+
+
+-- -----*----------------
+INSERT INTO `trade` VALUES (
+51212,
+'T20150330LX1000000002',
+0,
+'6',
+'2015-03-30 12:54:05',
+'57',
+'Peter TASK',
+'71',
+'RBC',
+'O20150330LX1000000002',
+'C20150330LX1000023026',
+62.779500000000000000,
+1000000.000000000000000000,
+NULL,
+'P',
+'0',
+NULL,
+NULL,
+'1',
+'<header><major>1</major><minor>0</minor></header><Trade><custom type=\"String\" name=\"MKR\">Bank Of India</custom><custom type=\"String\" name=\"TNR\">M1</custom><custom type=\"DateField\" name=\"VLD\">20150503-00:00:00.000</custom><custom type=\"DateField\" name=\"FXD\">20150430-00:00:00.000</custom><custom type=\"String\" name=\"TKR\">R5Admin</custom><custom type=\"String\" name=\"SYM\">USD/INR</custom></Trade><trailer></trailer>',
+'USD/INR.FWD.M1','USD/INR','E20150330LX1000000003','E20150330LX1000000004','BUY','Bank Of India','R5Admin','M1','USD/INR'
+);

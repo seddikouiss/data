@@ -1,0 +1,117 @@
+drop database cube_st_from_st__db_v2 ;
+create database cube_st_from_st__db_v2 ;
+
+use cube_st_from_st__db_v2 ;
+
+CREATE TABLE dim_buyer
+(
+  id_buyer BIGINT NOT NULL PRIMARY KEY,
+  name VARCHAR(255),
+ counter VARCHAR(255)
+)
+;CREATE UNIQUE INDEX idx_dim_buyer_pk ON dim_buyer(id_buyer);
+
+CREATE INDEX idx_dim_buyer_lookup ON dim_buyer(name, counter);
+
+CREATE TABLE dim_counter
+(
+  counter_id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  user VARCHAR(255),
+  counter VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_counter_pk ON dim_counter(counter_id);
+
+CREATE INDEX idx_dim_counter_lookup ON dim_counter(user, counter);
+
+CREATE TABLE dim_maker
+(
+  id_maker BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  maker VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_maker_pk ON dim_maker(id_maker);
+
+CREATE INDEX idx_dim_maker_lookup ON dim_maker(maker);
+
+CREATE TABLE dim_order_buy
+(
+  id_order_buy BIGINT NOT NULL PRIMARY KEY
+, `ORDER` VARCHAR(255)
+, status VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_order_buy_pk ON dim_order_buy(id_order_buy);
+
+CREATE INDEX idx_dim_order_buy_lookup ON dim_order_buy(`ORDER`, status)
+;
+
+CREATE TABLE dim_order_sell
+(
+  id_order_sell BIGINT NOT NULL PRIMARY KEY,
+  `ORDER` VARCHAR(255),
+  status VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_order_sell_pk ON dim_order_sell(id_order_sell);
+
+CREATE INDEX idx_dim_order_sell_lookup ON dim_order_sell(`ORDER`, status);
+
+
+CREATE TABLE dim_product
+(
+  id_product BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  pruduct VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_product_pk ON dim_product(id_product);
+
+CREATE INDEX idx_dim_product_lookup ON dim_product(pruduct);
+
+CREATE TABLE dim_seller
+(
+  id_seller BIGINT NOT NULL PRIMARY KEY,
+  name VARCHAR(255),
+  counter VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_seller_pk ON dim_seller(id_seller);
+
+CREATE INDEX idx_dim_seller_lookup ON dim_seller(name, counter);
+CREATE TABLE dim_taker
+(
+  id_taker BIGINT NOT NULL PRIMARY KEY,
+  taker VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_taker_pk ON dim_taker(id_taker);
+
+CREATE INDEX idx_dim_taker_lookup ON dim_taker(taker);
+
+CREATE TABLE dim_time
+(
+  id_time BIGINT PRIMARY KEY,
+  day TINYTEXT,
+  month TINYTEXT,
+  year TINYTEXT
+);
+CREATE UNIQUE INDEX idx_dim_time_pk ON dim_time(id_time);
+
+
+CREATE TABLE order_facts
+(
+  id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  id_time BIGINT,
+  id_counter BIGINT,
+  id_product BIGINT,
+  contrat_amount DECIMAL(65, 30),
+  nb_trade DECIMAL(24, 4),
+  ord_type VARCHAR(255)
+);
+CREATE TABLE trade_facts
+(
+  id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  id_time BIGINT,
+  id_product BIGINT,
+  id_taker BIGINT,
+  id_maker BIGINT,
+  id_buyer BIGINT,
+  id_seller BIGINT,
+  id_order_sell BIGINT,
+  id_order_buy BIGINT,
+  quantity DECIMAL(36, 18),
+  trade_volume DECIMAL(36, 18)
+);
