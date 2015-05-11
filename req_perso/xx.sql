@@ -40,9 +40,11 @@ insert into trade_facts values(607,1,1,1,1,1,1,7,1,50.00,50) ;
 
 
 show tables ;
-select  * from dim_order_buy ;
+select  count(*) from trade_facts ;
 
-select F.id_order_buy ,D.order,status,count(F.id_order_buy)
-from trade_facts F, dim_order_buy D
-where D.id_order_buy = F.id_order_buy
-group by F.id_order_buy;
+desc order_facts ;
+select count(*)/2 from order_facts
+where trade_volume is not null;
+
+select sum(trade_volume)/2 from order_facts
+where trade_volume is not null;

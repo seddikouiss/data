@@ -1,4 +1,6 @@
-select
-  {[Measures].[total_odrer_price], [Measures].[Units Orders]} on columns,
-  {([Counter].[All Counters],[Time].[All Times], [Product].[All Products])} ON rows
-from CubeR5
+--1
+
+SELECT {[Measures].[Units Orders], [Measures].[Units Trades], [Measures].[NOT Traded Unit], [Measures].[Order Volume], [Measures].[Trade Volume], [Measures].[NOT Traded Volume]} ON COLUMNS, Hierarchize(Union(Union(CrossJoin({[Counter].[All Counters]}, Union(CrossJoin({[Product].[All Products]}, {[Side].[All Sides]}), CrossJoin({[Product].[All Products]}, [Side].[All Sides].Children))), CrossJoin([Counter].[All Counters].Children, Union(CrossJoin({[Product].[All Products]}, {[Side].[All Sides]}), CrossJoin({[Product].[All Products]}, [Side].[All Sides].Children)))), CrossJoin({[Counter].[Bank Of India]}, Union(CrossJoin([Product].[All Products].Children, {[Side].[All Sides]}), CrossJoin([Product].[All Products].Children, [Side].[All Sides].Children))))) ON ROWS FROM [Orders]
+
+
+SELECT NON EMPTY {[Measures].[Units Orders], [Measures].[Order Volume], [Measures].[MIN Order Volume], [Measures].[MAX Order Volume], [Measures].[AVG Order Volume], [Measures].[Units Trades], [Measures].[Trade Volume], [Measures].[MIN Trade Volume], [Measures].[MAX Trade Volume], [Measures].[AVG Trade Volume]} ON COLUMNS, NON EMPTY CrossJoin(Hierarchize(Union(CrossJoin({[Counter].[All Counters]}, {[Product].[All Products]}), CrossJoin({[Counter].[All Counters]}, [Product].[All Products].Children))), {[Side].[All Sides], [Side].[BUY], [Side].[SELL]}) ON ROWS FROM [Orders]

@@ -109,19 +109,21 @@ group by O.ORD_VERSION_ID
 select count(distinct SELLER_ORDER_ID) from trade ;
 
 
-select 	O.ORD_VERSION_ID,O.ORD_DATE as 'Creation_Date', U.USR_ID ,U.USR_NAME as 'User_Name',
-		TG.TDG_ID  , TG.TDG_NAME as 'Counterparty_Name',
+select 	O.ORD_VERSION_ID,O.ORD_DATE as 'Creation_Date',U.USR_NAME as 'User_Name',
+		TG.TDG_NAME as 'Counterparty_Name',
 		O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',
-        O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,
-        O.ORD_ORDER_STATUS,O.ORD_PRICE * O.ORD_QUANTITY as 'Contra Amount',
-        count(T1.TRD_NUM) / 2 as NB_TRADE, ORD_SIDE as 'ORD_TYPE'
+        O.ORD_ORDER_STATUS,O.ORD_QUANTITY,O.ORD_PRICE as 'Order_volume',
+        ORD_SIDE as 'ORD_TYPE',
+        count(*) / 2 as 'NB_TRADE', T1.TRD_PRICE as 'Trade_Volume'
 from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
 			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
               left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
 									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
-group by O.ORD_VERSION_ID;
+group by O.ORD_VERSION_ID,Creation_Date,Counterparty_Name,Security_Name,O.ORD_ORDER_STATUS,O.ORD_QUANTITY,Order_volume,ORD_TYPE,Trade_Volume
+having NB_TRADE = 1;
 
-select count(*) from trade ;
+select * from trade T1
+where T1.TRD_NUM = 265 or  T1.TRD_NUM = 51212;
 
 select O.ORD_DATE as 'Creation_Date', U.USR_ID ,U.USR_NAME as 'User_Name', TG.TDG_ID  , TG.TDG_NAME as 'Counterparty_Name', O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,O.ORD_ORDER_STATUS,O.ORD_PRICE * O.ORD_QUANTITY as 'Contra Amount'
 from orders O join st_user U on O.ORD_OWNER_ID = U.USR_ID join  tradegroup TG on TG.TDG_ID = U.TDG_ID;
@@ -133,16 +135,16 @@ from orders O join st_user U on O.ORD_OWNER_ID = U.USR_ID join  tradegroup TG on
 -- -----*----------------
 INSERT INTO `trade` VALUES (
 51212,
-'T20150330LX1000000002',
+'T20150330LX100000000219',
 0,
 '6',
-'2015-03-30 12:54:05',
-'57',
-'Peter TASK',
+'2015-04-16 12:54:05',
 '71',
 'RBC',
-'O20150330LX1000000002',
-'C20150330LX1000023026',
+'53',
+'Kim DAVIS',
+'C20150330LX1000330053',
+'O20150330LX1000006557',
 62.779500000000000000,
 1000000.000000000000000000,
 NULL,
@@ -154,3 +156,22 @@ NULL,
 '<header><major>1</major><minor>0</minor></header><Trade><custom type=\"String\" name=\"MKR\">Bank Of India</custom><custom type=\"String\" name=\"TNR\">M1</custom><custom type=\"DateField\" name=\"VLD\">20150503-00:00:00.000</custom><custom type=\"DateField\" name=\"FXD\">20150430-00:00:00.000</custom><custom type=\"String\" name=\"TKR\">R5Admin</custom><custom type=\"String\" name=\"SYM\">USD/INR</custom></Trade><trailer></trailer>',
 'USD/INR.FWD.M1','USD/INR','E20150330LX1000000003','E20150330LX1000000004','BUY','Bank Of India','R5Admin','M1','USD/INR'
 );
+
+
+select  count(distinct T1.TRD_ID)
+from orders O join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+where O.ORD_SIDE='BUY';
+
+select sum(TRD_PRICE)/2
+from orders O left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+;
+select *
+from Trade;
+
+select 	sum(T1.TRD_PRICE)
+from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
+			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
+              left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID;

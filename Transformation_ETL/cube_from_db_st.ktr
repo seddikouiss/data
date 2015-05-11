@@ -141,8 +141,9 @@
   <hop> <from>dim buyer</from><to>dim seller</to><enabled>Y</enabled> </hop>
   <hop> <from>dim seller</from><to>dim order sell</to><enabled>Y</enabled> </hop>
   <hop> <from>dim order sell</from><to>dim order buy</to><enabled>Y</enabled> </hop>
-  <hop> <from>dim product</from><to>table facts</to><enabled>Y</enabled> </hop>
   <hop> <from>dim order buy</from><to>trade facts</to><enabled>Y</enabled> </hop>
+  <hop> <from>dim product</from><to>dim side</to><enabled>Y</enabled> </hop>
+  <hop> <from>dim side</from><to>table facts</to><enabled>Y</enabled> </hop>
   </order>
   <step>
     <name>Calculator</name>
@@ -304,7 +305,7 @@
            <schema_name/>
            </partitioning>
     <connection>st_base</connection>
-    <sql>select 	O.ORD_VERSION_ID,O.ORD_DATE as &#x27;Creation_Date&#x27;, U.USR_ID ,U.USR_NAME as &#x27;User_Name&#x27;,&#xd;&#xa;		TG.TDG_ID  , TG.TDG_NAME as &#x27;Counterparty_Name&#x27;,&#xd;&#xa;		O.PRD_NAME as &#x27;Security_Name&#x27;,O.PRD_ID as &#x27;Security_ID&#x27;,&#xd;&#xa;        O.ORD_ORDER_STATUS,O.ORD_PRICE,O.ORD_QUANTITY,&#xd;&#xa;        O.ORD_ORDER_STATUS,O.ORD_PRICE &#x2a; O.ORD_QUANTITY as &#x27;Contra Amount&#x27;,&#xd;&#xa;        count&#x28;T1.TRD_NUM&#x29; &#x2f; 2 as NB_TRADE, ORD_SIDE as &#x27;ORD_TYPE&#x27;&#xd;&#xa;from orders O join st_user U 		on O.ORD_OWNER_ID &#x3d; U.USR_ID &#xd;&#xa;			  join  tradegroup TG 	on TG.TDG_ID &#x3d; U.TDG_ID &#xd;&#xa;              left join Trade T1 	on O.ORD_VERSION_ID &#x3d; T1.BUYER_ORDER_ID &#xd;&#xa;									or  O.ORD_VERSION_ID &#x3d; T1.SELLER_ORDER_ID&#xd;&#xa;group by O.ORD_VERSION_ID&#x3b;&#xd;&#xa;</sql>
+    <sql>select 	O.ORD_VERSION_ID,O.ORD_DATE as &#x27;Creation_Date&#x27;,U.USR_NAME as &#x27;User_Name&#x27;,&#xd;&#xa;		TG.TDG_NAME as &#x27;Counterparty_Name&#x27;,&#xd;&#xa;		O.PRD_NAME as &#x27;Security_Name&#x27;,O.PRD_ID as &#x27;Security_ID&#x27;,&#xd;&#xa;        O.ORD_ORDER_STATUS,O.ORD_QUANTITY,O.ORD_PRICE as &#x27;Order_volume&#x27;,&#xd;&#xa;        ORD_SIDE as &#x27;ORD_TYPE&#x27;,&#xd;&#xa;        count&#x28;&#x2a;&#x29; &#x2f; 2 as &#x27;NB_TRADE&#x27;, T1.TRD_PRICE as &#x27;Trade_Volume&#x27;&#xd;&#xa;from orders O join st_user U 		on O.ORD_OWNER_ID &#x3d; U.USR_ID &#xd;&#xa;			  join  tradegroup TG 	on TG.TDG_ID &#x3d; U.TDG_ID &#xd;&#xa;              left join Trade T1 	on O.ORD_VERSION_ID &#x3d; T1.BUYER_ORDER_ID &#xd;&#xa;									or  O.ORD_VERSION_ID &#x3d; T1.SELLER_ORDER_ID&#xd;&#xa;group by O.ORD_VERSION_ID,Creation_Date,Counterparty_Name,Security_Name,O.ORD_ORDER_STATUS,O.ORD_QUANTITY,Order_volume,ORD_TYPE,Trade_Volume&#x3b;&#xd;&#xa;&#xd;&#xa;</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -334,7 +335,7 @@
       <connection>cube_st_from_ST__DB_v2</connection>
       <commit>100</commit>
       <cache_size>9999</cache_size>
-      <replace>Y</replace>
+      <replace>N</replace>
       <preloadCache>N</preloadCache>
       <crc>N</crc>
       <crcfield>hashcode</crcfield>
@@ -847,22 +848,26 @@
           <stream_name>id_product</stream_name>
         </field>
         <field>
-          <column_name>contrat_amount</column_name>
-          <stream_name>Contra Amount</stream_name>
+          <column_name>id_side</column_name>
+          <stream_name>id_side</stream_name>
+        </field>
+        <field>
+          <column_name>order_volume</column_name>
+          <stream_name>Order_volume</stream_name>
         </field>
         <field>
           <column_name>nb_trade</column_name>
           <stream_name>NB_TRADE</stream_name>
         </field>
         <field>
-          <column_name>ord_type</column_name>
-          <stream_name>ORD_TYPE</stream_name>
+          <column_name>trade_volume</column_name>
+          <stream_name>Trade_Volume</stream_name>
         </field>
     </fields>
      <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
-      <xloc>672</xloc>
-      <yloc>243</yloc>
+      <xloc>684</xloc>
+      <yloc>137</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
@@ -941,6 +946,47 @@
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>110</xloc>
       <yloc>477</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>dim side</name>
+    <type>CombinationLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <schema/>
+      <table>dim_side</table>
+      <connection>cube_st_from_ST__DB_v2</connection>
+      <commit>100</commit>
+      <cache_size>9999</cache_size>
+      <replace>N</replace>
+      <preloadCache>N</preloadCache>
+      <crc>N</crc>
+      <crcfield>hashcode</crcfield>
+      <fields>
+        <key>
+          <name>ORD_TYPE</name>
+          <lookup>side</lookup>
+        </key>
+        <return>
+          <name>id_side</name>
+          <creation_method>autoinc</creation_method>
+          <use_autoinc>Y</use_autoinc>
+        </return>
+      </fields>
+      <sequence/>
+      <last_update_field/>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>684</xloc>
+      <yloc>243</yloc>
       <draw>Y</draw>
       </GUI>
     </step>
