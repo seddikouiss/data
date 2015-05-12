@@ -100,6 +100,23 @@ CREATE UNIQUE INDEX idx_dim_side_pk ON dim_side(id_side);
 
 CREATE INDEX idx_dim_side_lookup ON dim_side(side);
 
+CREATE TABLE dim_state
+(
+  id_state BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  state VARCHAR(255)
+);
+CREATE UNIQUE INDEX idx_dim_state_pk ON dim_state(id_state);
+
+CREATE INDEX idx_dim_state_lookup ON dim_state(state);
+
+CREATE TABLE dim_aggr
+(
+  id_aggr BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  aggression VARCHAR(30)
+);
+CREATE UNIQUE INDEX idx_dim_aggr_pk ON dim_aggr(id_aggr);
+
+CREATE INDEX idx_dim_aggr_lookup ON dim_aggr(aggression);
 
 
 
@@ -110,6 +127,8 @@ CREATE TABLE order_facts
   id_counter BIGINT,
   id_product BIGINT,
   id_side BIGINT,
+  id_aggr BIGINT,
+  id_state BIGINT,
   order_volume DECIMAL(36, 18),
   nb_trade DECIMAL(24, 4),
   trade_volume DECIMAL(36, 18),

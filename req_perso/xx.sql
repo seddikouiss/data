@@ -48,3 +48,8 @@ where trade_volume is not null;
 
 select sum(trade_volume)/2 from order_facts
 where trade_volume is not null;
+
+
+select count(*) from order_facts;
+
+

@@ -6,7 +6,7 @@ select distinct ORD_OWNER_NAME from orders ;
 --
 select distinct ORD_OWNER_NAME from orders ;
 
-select *  from  orders;
+select count(*)  from  orders;
 select PRD_NAME  from  orders;
 show tables ;
 select * from st_user ;
@@ -39,7 +39,7 @@ select CLI_ID from trade ;
 /*
 Le nombre d'orders trader(si un trade = 2 * orders):
 */
-select count(*) * 2  from trade ;
+select count(*) from trade ;
 
 /*
  Le nombre d'ordre soit de vente soit d'achat
@@ -112,16 +112,21 @@ select count(distinct SELLER_ORDER_ID) from trade ;
 select 	O.ORD_VERSION_ID,O.ORD_DATE as 'Creation_Date',U.USR_NAME as 'User_Name',
 		TG.TDG_NAME as 'Counterparty_Name',
 		O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',
-        O.ORD_ORDER_STATUS,O.ORD_QUANTITY,O.ORD_PRICE as 'Order_volume',
+        O.ORD_ORDER_STATUS as 'STATUS',O.ORD_QUANTITY,O.ORD_PRICE as 'Order_volume',
         ORD_SIDE as 'ORD_TYPE',
-        count(*) / 2 as 'NB_TRADE', T1.TRD_PRICE as 'Trade_Volume'
+        count(*) / 2 as 'NB_TRADE', T1.TRD_PRICE as 'Trade_Volume',
+        if(T1.AGGRESSOR_SIDE is not null,
+			if(strcmp(T1.AGGRESSOR_SIDE,O.ORD_SIDE) = 0 ,
+				'TAKED',
+				'MAKED')
+			,NULL) as 'AGGRESSION'
 from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
 			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
               left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
 									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
-group by O.ORD_VERSION_ID,Creation_Date,Counterparty_Name,Security_Name,O.ORD_ORDER_STATUS,O.ORD_QUANTITY,Order_volume,ORD_TYPE,Trade_Volume
-having NB_TRADE = 1;
+group by O.ORD_VERSION_ID,Creation_Date,Counterparty_Name,Security_Name,O.ORD_ORDER_STATUS,O.ORD_QUANTITY,Order_volume,ORD_TYPE,Trade_Volume;
 
+select ORD_ORDER_STATUS from orders ;
 select * from trade T1
 where T1.TRD_NUM = 265 or  T1.TRD_NUM = 51212;
 
@@ -175,3 +180,121 @@ from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID
 			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
               left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
 									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID;
+
+
+/* ***************************/
+select 	O.ORD_VERSION_ID,O.ORD_DATE as 'Creation_Date',U.USR_NAME as 'User_Name',
+		TG.TDG_NAME as 'Counterparty_Name',
+		O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',
+        O.ORD_ORDER_STATUS,O.ORD_QUANTITY,O.ORD_PRICE as 'Order_volume',
+        ORD_SIDE as 'ORD_TYPE',
+        ORD_Traded.NB_TRADED as 'NB_TRADE'/*, ORD_Traded.TRD_PRICE as 'Trade_Volume'*/
+from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
+			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
+              left 	join (select O.ORD_VERSION_ID,/*T.TRD_PRICE,*/ count(*) as 'NB_TRADED'
+					from trade T join orders O 	on  O.ORD_VERSION_ID = T.SELLER_ORDER_ID 
+												or  O.ORD_VERSION_ID = T.BUYER_ORDER_ID
+					
+					group by O.ORD_VERSION_ID/*,T.TRD_PRICE*/) ORD_Traded on  ORD_Traded.ORD_VERSION_ID = O.ORD_VERSION_ID
+;
+
+
+select O.ORD_VERSION_ID,T.TRD_PRICE, count(T.TRD_NUM) as 'NB_TRADED'
+					from trade T join orders O 	on  O.ORD_VERSION_ID = T.SELLER_ORDER_ID 
+												or  O.ORD_VERSION_ID = T.BUYER_ORDER_ID
+					where O.ORD_SIDE='BUY'
+					group by O.ORD_VERSION_ID,T.TRD_PRICE
+;
+
+select ORD_VERSION_ID,	if(strcmp(T1.AGGRESSOR_SIDE,'BUY'),TRD_PRICE,0) as 'TAKED',if(strcmp(T1.AGGRESSOR_SIDE,'SELL'),TRD_PRICE,0) as 'MAKED'
+from orders O join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID
+								or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+;
+select ORD_VERSION_ID,	if((strcmp(T1.AGGRESSOR_SIDE,O.ORD_SIDE) = 0 ) ,'TAKED','MAKED') as 'AGGRESSION',
+						T1.AGGRESSOR_SIDE,T1.BUYER_ORDER_ID,T1.SELLER_ORDER_ID
+from orders O left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID
+								or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+;
+select ORD_VERSION_ID,
+	if(T1.AGGRESSOR_SIDE is not null,
+		if(strcmp(T1.AGGRESSOR_SIDE,O.ORD_SIDE) = 0 ,
+			'TAKED',
+            'MAKED')
+		,NULL) as 'AGGRESSION',
+						T1.AGGRESSOR_SIDE,T1.BUYER_ORDER_ID,T1.SELLER_ORDER_ID
+from orders O left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID
+								or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+;
+
+
+
+/********* */
+select 	O.ORD_VERSION_ID,O.ORD_DATE as 'Creation_Date',U.USR_NAME as 'User_Name',
+		TG.TDG_NAME as 'Counterparty_Name',
+		O.PRD_NAME as 'Security_Name',O.PRD_ID as 'Security_ID',
+        O.ORD_ORDER_STATUS as 'STATUS',O.ORD_QUANTITY,O.ORD_PRICE as 'Order_volume',
+        ORD_SIDE as 'ORD_TYPE',
+        Traded.NB_TRADE, T1.TRD_PRICE as 'Trade_Volume',
+        if(T1.AGGRESSOR_SIDE is not null,
+			if(strcmp(T1.AGGRESSOR_SIDE,O.ORD_SIDE) = 0 ,
+				'TAKED',
+				'MAKED')
+			,NULL) as 'AGGRESSION'
+from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
+			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
+              left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+			  join (select count(*) / 2 as 'NB_TRADE',O.ORD_VERSION_ID 
+					from orders O join Trade T2 on  O.ORD_VERSION_ID = T2.BUYER_ORDER_ID 
+												or  O.ORD_VERSION_ID = T2.SELLER_ORDER_ID
+					group by O.ORD_VERSION_ID
+					) Traded on O.ORD_VERSION_ID = Traded.ORD_VERSION_ID
+;
+
+
+select 	sum(Traded.NB_TRADE)
+from orders O join st_user U 		on O.ORD_OWNER_ID = U.USR_ID 
+			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
+              left join Trade T1 	on O.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+									or  O.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+			  join (select count(*)  as 'NB_TRADE',O.ORD_VERSION_ID 
+					from orders O join Trade T2 on  O.ORD_VERSION_ID = T2.BUYER_ORDER_ID 
+												or  O.ORD_VERSION_ID = T2.SELLER_ORDER_ID
+					where O.ORD_SIDE='BUY'
+					group by O.ORD_VERSION_ID
+					) Traded on O.ORD_VERSION_ID = Traded.ORD_VERSION_ID
+;
+
+
+select 	O1.ORD_VERSION_ID,O1.ORD_DATE as 'Creation_Date',U.USR_NAME as 'User_Name',
+		TG.TDG_NAME as 'Counterparty_Name',
+		O1.PRD_NAME as 'Security_Name',O1.PRD_ID as 'Security_ID',
+        O1.ORD_ORDER_STATUS as 'STATUS',O1.ORD_QUANTITY,O1.ORD_PRICE as 'Order_volume',
+        O1.ORD_SIDE as 'ORD_TYPE',
+        Traded.NB_TRADE, Traded.TRD_PRICE as 'Trade_Volume',
+        if(Traded.AGGRESSOR_SIDE is not null,
+			if(strcmp(Traded.AGGRESSOR_SIDE,O1.ORD_SIDE) = 0 ,
+				'TAKED',
+				'MAKED')
+			,'NO AGGRESSION') as 'AGGRESSION'
+from orders O1 join st_user U 		on O1.ORD_OWNER_ID = U.USR_ID 
+			  join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID 
+              left join  (select count(*)  as 'NB_TRADE',O2.ORD_VERSION_ID ,T2.BUYER_ORDER_ID,T2.SELLER_ORDER_ID,TRD_PRICE,AGGRESSOR_SIDE
+					from orders O2 join Trade T2 on  O2.ORD_VERSION_ID = T2.BUYER_ORDER_ID 
+												or  O2.ORD_VERSION_ID = T2.SELLER_ORDER_ID
+					group by O2.ORD_VERSION_ID ,T2.BUYER_ORDER_ID,T2.SELLER_ORDER_ID,T2.TRD_PRICE
+					)Traded on O1.ORD_VERSION_ID = Traded.ORD_VERSION_ID                             
+;
+
+
+select count(distinct BUYER_ORDER_ID) from trade ;
+select count(BUYER_ORDER_ID) from trade ;
+
+
+
+
+
+
+
+
+
