@@ -51,5 +51,7 @@ where trade_volume is not null;
 
 
 select count(*) from order_facts;
+select * from order_facts;
 
+desc order_facts ;
 
