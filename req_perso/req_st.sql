@@ -303,6 +303,7 @@ from orders O1 	join st_user U 			on O1.ORD_OWNER_ID = U.USR_ID
                 left join Trade T1 		on O1.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
 										or O1.ORD_VERSION_ID = T1.SELLER_ORDER_ID
 ;
+
 -- //Version test---------------------------------------------------------------------------------------------------------
 
 
