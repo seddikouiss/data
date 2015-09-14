@@ -98,19 +98,18 @@ CREATE TABLE order_facts
 /* last version test */
 CREATE TABLE order_facts
 (
-  id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY
-, id_time BIGINT
-, id_counter BIGINT
-, id_product BIGINT
-, id_side BIGINT
-, id_aggr BIGINT
-, id_state BIGINT
-, order_volume DECIMAL(36, 18)
-, id_ord VARCHAR(255)
-, id_trade BIGINT
-, trade_volume DECIMAL(36, 18)
-)
-;
+  id BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  id_time BIGINT,
+  id_counter BIGINT,
+  id_product BIGINT,
+  id_side BIGINT,
+  id_aggr BIGINT,
+  id_state BIGINT,
+  order_volume DECIMAL(36, 18),
+  id_ord VARCHAR(255),
+  id_trade BIGINT,
+  trade_volume DECIMAL(36, 18)
+);
 /* // last version test  */
 
 -- ------------------------------------------------------------------
@@ -140,26 +139,6 @@ CREATE UNIQUE INDEX idx_dim_seller_pk ON dim_seller(id_seller);
 CREATE INDEX idx_dim_seller_lookup ON dim_seller(name, counter);
 
 -- ------------------------------------------------------------------
-
-CREATE TABLE dim_order_sell
-(
-  id_order_sell BIGINT NOT NULL PRIMARY KEY,
-  `ORDER` VARCHAR(255)
-);
-CREATE UNIQUE INDEX idx_dim_order_sell_pk ON dim_order_sell(id_order_sell);
-CREATE INDEX idx_dim_order_sell_lookup ON dim_order_sell(`ORDER`);
-
--- ------------------------------------------------------------------
-
-CREATE TABLE dim_order_buy
-(
-  id_order_buy BIGINT NOT NULL PRIMARY KEY,
-  `ORDER` VARCHAR(255)
-);
-CREATE UNIQUE INDEX idx_dim_order_buy_pk ON dim_order_buy(id_order_buy);
-
-CREATE INDEX idx_dim_order_buy_lookup ON dim_order_buy(`ORDER`)
-;
 
 -- ------------------------------------------------------------------
 

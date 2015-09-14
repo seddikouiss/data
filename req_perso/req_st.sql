@@ -324,10 +324,57 @@ select count(distinct ORD_VERSION_ID) from orders ;
 select sum( TRD_PRICE) from trade  where (SELLER_NAME ='Peter TASK' or  BUYER_NAME ='Peter TASK') and PRD_NAME='USD/INR';
 select sum(ORD_PRICE) from orders ;
 
+desc orders ;
 
+select ORD_VERSION_ID,ORD_ORDER_ID,ORD_PARENT_ORDER_ID,ORD_CHILD_ORDER_ID ,ORD_PRICE,ORD_ORDER_STATUS,ORD_QUANTITY,ORD_LEAVES_QUANTITY from orders ;
 
+select * from orders where ORD_VERSION_ID ='O20150330LX1000006557';
 
+-- elect count(distinct TRD_ID),count(distinct ORD_ORDER_ID) from trade,orders where BUYER_NAME ='Kim DAVIS' or SELLER_NAME='Kim DAVIS' ;
+select 	O1.ORD_VERSION_ID,O1.ORD_DATE as 'Creation_Date',U.USR_NAME as 'User_Name',
+		TG.TDG_NAME as 'Counterparty_Name',
+		O1.PRD_NAME as 'Security_Name',O1.PRD_ID as 'Security_ID',
+        O1.ORD_ORDER_STATUS as 'STATUS',O1.ORD_QUANTITY,O1.ORD_PRICE as 'Order_volume',
+        O1.ORD_SIDE as 'ORD_TYPE',T1.AGGRESSOR_SIDE,O1.ORD_SIDE,
+        T1.TRD_NUM, T1.TRD_PRICE as 'Trade_Volume',
+        if(T1.AGGRESSOR_SIDE is not null,
+			if(strcmp(T1.AGGRESSOR_SIDE,O1.ORD_SIDE) = 0 ,
+				'TAKED',
+				'MAKED')
+			,'NO AGGRESSION') as 'AGGRESSION'
+from orders O1 	join st_user U 			on O1.ORD_OWNER_ID = U.USR_ID 
+				join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID
+                left join Trade T1 		on O1.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+										or O1.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+;
+select * from trade where TRD_NUM = 355 or TRD_NUM = 51212 ;
+select * from orders where ORD_VERSION_ID = 'O20150330LX1000006557';
+select ORD_VERSION_ID,ORD_ORDER_ID,ORD_PARENT_ORDER_ID,ORD_CHILD_ORDER_ID ,ORD_PRICE,ORD_ORDER_STATUS,ORD_QUANTITY,ORD_LEAVES_QUANTITY from orders where ORD_VERSION_ID = 'O20150330LX1000006557';
 
+select  count(distinct U.USR_NAME) as 'User_Name'
+from orders O1 	join st_user U 			on O1.ORD_OWNER_ID = U.USR_ID 
+				join  tradegroup TG 	on TG.TDG_ID = U.TDG_ID
+                left join Trade T1 		on O1.ORD_VERSION_ID = T1.BUYER_ORDER_ID 
+										or O1.ORD_VERSION_ID = T1.SELLER_ORDER_ID
+;
 
-
-
+SELECT  	DATE(parent.ord_timestamp) as tradeDate,   
+			parent.prd_id as securityID,   
+			IFNULL(parent.ORD_CURRENCY, SUBSTRING(parent.prd_id FROM 1 FOR 3)) as currency, 
+			child.ORD_EXEC_AUTHORITY as lpUserID ,  
+			parent.ORD_CUSTOMER_ID as customerID,  
+			sum(parent.ORD_QUANTITY) as orderQty,   
+			count(parent.ORD_QUANTITY) as nbOrders,  
+			sum(parent.ORD_LAST_SHARES) as tradeQty,  
+			count(parent.ORD_LAST_SHARES != '0') as nbTrades,   
+			avg(parent.ORD_PRICE) as orderPrice,   
+			avg(parent.ORD_LAST_PRICE) as tradePrice   
+FROM orders AS parent   
+LEFT JOIN orders AS child on  child.ORD_ORCHESTRATION_PARENT_ID = parent.ORD_ORDER_ID 
+where  
+	parent.ord_exec_authority = '0'   
+	and (child.ord_status = 'R' or child.ord_status  is null)  
+	AND parent.ORD_RFQID is null  and parent.ord_status = 'R' 
+   and parent.ord_timestamp >= ? 
+	and parent.ord_timestamp <= ?
+GROUP BY tradeDate, securityID, lpUserID, currency, customerID;
